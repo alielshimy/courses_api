@@ -1,0 +1,25 @@
+//EXAMPLE CODE for mongo db
+const {MongoClient} = require('mongodb');
+
+const url = "mongodb+srv://alielshimy:nodejs_123@learn-mongo-db.8yhvunz.mongodb.net/?retryWrites=true&w=majority";
+
+const client = new MongoClient(url);
+
+const main = async () => {
+    await client.connect();
+    console.log("Connected successfully");
+    const db = client.db('nodejs_express_project');
+
+    const collection = db.collection('courses');
+
+    let course = await collection.insertOne({
+        title: "new course",
+        price: 2000
+    })
+
+    const data = await collection.find().toArray();
+    console.log("data", data);
+    console.log("New course", course);
+}
+
+main();
