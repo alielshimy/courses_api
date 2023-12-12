@@ -28,7 +28,7 @@ const register = asyncWrapper(
             return next(error);
         }
         
-        const {firstName, lastName, email, password} = req.body;
+        const {firstName, lastName, email, password, role} = req.body;
 
         const user = await User.findOne({email: email});
 
@@ -43,10 +43,12 @@ const register = asyncWrapper(
             firstName,
             lastName,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            role,
+            avatar: req.file.filename
         });
 
-        const token = await generateJWT({email: newUser.email, id: newUser._id})
+        const token = await generateJWT({email: newUser.email, id: newUser._id, role: newUser.role})
         newUser.token = token;
         await newUser.save();
         res.status(201).json({status: httpStatusText.SUCCESS, data: {user: newUser}});
@@ -72,7 +74,7 @@ const login = asyncWrapper(
         
         const result = await bcrypt.compare(password, user.password);
         if(result){
-            const token = await generateJWT({email: user.email, id: user._id})
+            const token = await generateJWT({email: user.email, id: user._id, role: user.role});
             return res.status(200).json({status: httpStatusText.SUCCESS, data: {token}});
         } else {
             const error = appError.create('Wrong email and password combination', 404, httpStatusText.FAIL);
